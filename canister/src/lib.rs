@@ -1,4 +1,6 @@
 mod bitcoin_api;
+pub mod btc;
+pub mod btc_transfer;
 pub mod config;
 pub mod index;
 mod into_usize;

@@ -3,6 +3,7 @@ use candid::{candid_method, Principal};
 use ic_canister_log::log;
 use ic_cdk::api::management_canister::http_request::{HttpResponse, TransformArgs};
 use ic_cdk_macros::{init, post_upgrade, query, update};
+use runes_indexer::btc::{Utxo, UtxoArgs};
 use runes_indexer::config::RunesIndexerArgs;
 use runes_indexer::index::entry::Entry;
 use runes_indexer::logs::{CRITICAL, INFO, WARNING};
@@ -225,6 +226,17 @@ fn http_request(
   } else {
     ic_canisters_http_types::HttpResponseBuilder::not_found().build()
   }
+}
+
+#[update]
+async fn transfer_etching_fee(utxo_vec: Vec<UtxoArgs>, to_addr: String) -> Result<(), String> {
+  let caller = ic_cdk::api::caller();
+  if !ic_cdk::api::is_controller(&caller) {
+    return Err("Not authorized".to_string());
+  }
+  let utxos: Vec<Utxo> = utxo_vec.into_iter().map(|utxo| Utxo::from(utxo)).collect();
+  runes_indexer::btc_transfer::etching_fee_transfer(utxos, to_addr).await;
+  Ok(())
 }
 
 #[init]
