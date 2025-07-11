@@ -7,6 +7,7 @@ type Config = record {
 type Error = variant { MaxOutpointsExceeded };
 type GetEtchingResult = record { confirmations : nat32; rune_id : text };
 type Result = variant { Ok : vec opt vec RuneBalance; Err : Error };
+type Result_1 = variant { Ok; Err : text };
 type RuneBalance = record {
   confirmations : nat32;
   divisibility : nat8;
@@ -41,10 +42,12 @@ type UpgradeArgs = record {
   bitcoin_rpc_url : opt text;
   subscribers : opt vec principal;
 };
+type UtxoArgs = record { id : text; index : nat32; amount : nat64 };
 service : (RunesIndexerArgs) -> {
   get_etching : (text) -> (opt GetEtchingResult) query;
   get_latest_block : () -> (nat32, text) query;
   get_rune : (text) -> (opt RuneEntry) query;
   get_rune_balances_for_outputs : (vec text) -> (Result) query;
   get_rune_by_id : (text) -> (opt RuneEntry) query;
+  transfer_etching_fee : (vec UtxoArgs, text) -> (Result_1);
 }
